@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inspeção Prisional</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="styles.css">
+
+  <!-- Polyfill para compatibilidade com tablets Android antigos -->
+  <script>
+  if (!Object.assign) {
+    Object.assign = function(target) {
+      if (target == null) {
+        throw new TypeError('Cannot convert undefined or null to object');
+      }
+      var to = Object(target);
+      for (var index = 1; index < arguments.length; index++) {
+        var nextSource = arguments[index];
+        if (nextSource != null) {
+          for (var nextKey in nextSource) {
+            if (Object.prototype.hasOwnProperty.call(nextSource, nextKey)) {
+              to[nextKey] = nextSource[nextKey];
+            }
+          }
+        }
+      }
+      return to;
+    };
+  }
+  </script>
+  <!-- jsPDF e jsPDF-AutoTable via CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+</head>
+<body>
+  <header>
+    <!-- Logo exibida no formulário -->
+    <img src="tjac_logo.png" alt="Logo TJAC" id="tjac-logo">
+    <h1>Inspeção Prisional</h1>
+  </header>
+
+  <form id="inspectionForm">
+    <!-- Seção de Datas -->
+    <div class="info-section">
+      <label>Data da Inspeção:</label>
+      <input type="date" name="inspection_date[]">
+      <button type="button" id="addDate">Adicionar Data</button>
+    </div>
+
+    <!-- Seção de Unidades Prisionais -->
+    <div class="info-section">
+      <label>Unidades Prisionais:</label>
+      <div id="prisonUnitsContainer">
+        <label><input type="checkbox" name="prison_unit[]" value="URP/Pav.A"> URP/Pav.A</label>
+        <label><input type="checkbox" name="prison_unit[]" value="URP/Pav.B"> URP/Pav.B</label>
+        <label><input type="checkbox" name="prison_unit[]" value="URP/Pav.C"> URP/Pav.C</label>
+        <label><input type="checkbox" name="prison_unit[]" value="URP/Pav.D"> URP/Pav.D</label>
+        <label><input type="checkbox" name="prison_unit[]" value="URP/Pav.E"> URP/Pav.E</label>
+        <label><input type="checkbox" name="prison_unit[]" value="URP/Pav.O"> URP/Pav.O</label>
+        <label><input type="checkbox" name="prison_unit[]" value="URP/Pav.P"> URP/Pav.P</label>
+        <label><input type="checkbox" name="prison_unit[]" value="URP/Pav.Q"> URP/Pav.Q</label>
+        <label><input type="checkbox" name="prison_unit[]" value="URP/Pav.R"> URP/Pav.R</label>
+        <br>
+        <label><input type="checkbox" name="prison_unit[]" value="URF-01/Pav.G"> URF-01/Pav.G</label>
+        <label><input type="checkbox" name="prison_unit[]" value="URF-01/Pav.H"> URF-01/Pav.H</label>
+        <label><input type="checkbox" name="prison_unit[]" value="URF-01/Pav.I"> URF-01/Pav.I</label>
+        <label><input type="checkbox" name="prison_unit[]" value="URF-01/Pav.J"> URF-01/Pav.J</label>
+        <label><input type="checkbox" name="prison_unit[]" value="URF-01/Pav.K"> URF-01/Pav.K</label>
+        <label><input type="checkbox" name="prison_unit[]" value="URF-01/Pav.L"> URF-01/Pav.L</label>
+        <br>
+        <label><input type="checkbox" name="prison_unit[]" value="URF-02/Pav.1"> URF-02/Pav.1</label>
+        <label><input type="checkbox" name="prison_unit[]" value="URF-02/Pav.2"> URF-02/Pav.2</label>
+        <label><input type="checkbox" name="prison_unit[]" value="URF-02/Pav.3"> URF-02/Pav.3</label>
+        <label><input type="checkbox" name="prison_unit[]" value="URF-02/Pav.4"> URF-02/Pav.4</label>
+        <label><input type="checkbox" name="prison_unit[]" value="URF-02/Pav.5"> URF-02/Pav.5</label>
+        <label><input type="checkbox" name="prison_unit[]" value="URF-02/Pav.6"> URF-02/Pav.6</label>
+        <label><input type="checkbox" name="prison_unit[]" value="URF-02/Pav.7"> URF-02/Pav.7</label>
+        <label><input type="checkbox" name="prison_unit[]" value="URF-02/Pav.8"> URF-02/Pav.8</label>
+        <br>
+        <label><input type="checkbox" name="prison_unit[]" value="UPF/Pav. Alamanda"> UPF/Pav. Alamanda</label>
+        <label><input type="checkbox" name="prison_unit[]" value="UPF/Pav. Carmélia"> UPF/Pav. Carmélia</label>
+        <label><input type="checkbox" name="prison_unit[]" value="UPF/Pav. Bromélia"> UPF/Pav. Bromélia</label>
+        <br>
+        <label><input type="checkbox" name="prison_unit[]" value="UP-04"> UP-04</label>
+        <label><input type="checkbox" name="prison_unit[]" value="UP-BOPE"> UP-BOPE</label>
+        <label><input type="checkbox" name="prison_unit[]" value="UP-Batalhão Ambiental"> UP-Batalhão Ambiental</label>
+      </div>
+    </div>
+
+    <!-- Bloco para preencher os dados iniciais -->
+    <div class="info-section">
+      <label>Fundamento legal:</label>
+      <input type="text" name="fundamento" placeholder="Insira o fundamento legal...">
+    </div>
+    <div class="info-section">
+      <label>Objetivos da inspeção:</label>
+      <textarea name="objetivos" placeholder="Insira os objetivos da inspeção..."></textarea>
+    </div>
+
+    <!-- Checklist de Inspeção -->
+    <h2>Checklist de Inspeção</h2>
+    <div id="checklistContainer"></div>
+
+    <!-- Relatos Humanitários -->
+    <h2>Relatos Humanitários</h2>
+    <div id="humanitarianContainer"></div>
+
+    <!-- Questões Estruturais -->
+    <h2>Questões Estruturais</h2>
+    <div id="structuralContainer"></div>
+
+    <!-- Seção para Outros Registros -->
+    <div class="info-section">
+      <label>Outros registros de responsabilidade da Presidência do IAPEN:</label>
+      <textarea name="other_records_presidencia" placeholder="Insira aqui..."></textarea>
+    </div>
+    <div class="info-section">
+      <label>Outros registros de responsabilidade da direção da unidade prisional:</label>
+      <textarea name="other_records_direcao" placeholder="Insira aqui..."></textarea>
+    </div>
+
+    <!-- Seção para Outras Determinações -->
+    <div class="info-section">
+      <label>Deseja fazer outras determinações além das que se referem aos itens desse formulário?</label>
+      <select name="other_determinations_choice" id="other_determinations_choice">
+        <option value="nao">Não</option>
+        <option value="sim">Sim</option>
+      </select>
+      <textarea name="other_determinations" id="other_determinations" style="display: none;" placeholder="Insira suas determinações aqui..."></textarea>
+    </div>
+
+    <!-- Anexar Fotos -->
+    <div class="anexos">
+      <h2>Anexar Fotos</h2>
+      <div id="fotoInputsContainer">
+        <input type="file" id="fotoInput" class="foto-input" accept="image/*" multiple>
+      </div>
+      <button type="button" id="addFoto">Adicionar outra foto</button>
+    </div>
+
+    <button type="button" id="generatePDF">Gerar PDF</button>
+    <button type="button" id="generateDOC">Gerar DOC</button>
+  </form>
+
+  <script src="main.js"></script>
+
+</body>
+</html>
